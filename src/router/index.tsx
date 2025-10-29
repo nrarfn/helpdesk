@@ -5,6 +5,7 @@ import CreateTicketPage from "../pages/CreateTicketPage.tsx";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage.tsx";
 import ApplicationsPage from "../pages/admin/ApplicationsPage.tsx";
 import StatusesPage from "../pages/admin/StatusesPage.tsx";
+import TicketDetailsPage from "../pages/admin/TicketDetailsPage.tsx";
 import NotFoundPage from "../pages/404Page.tsx";
 import AuthProtectedRoute from "./AuthProtectedRoute.tsx";
 import AdminProtectedRoute from "./AdminProtectedRoute.tsx";
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
                   {
                     path: "statuses",
                     element: <StatusesPage />,
+                  },
+                  {
+                    path: "tickets/:id",
+                    element: <TicketDetailsPage />,
                   },
                 ],
               },

@@ -10,7 +10,8 @@ def run(playwright):
     page.get_by_role("button", name="Login").click()
     page.wait_for_url("http://localhost:5173/dashboard")
     page.goto("http://localhost:5173/admin")
-    page.screenshot(path="jules-scratch/verification/admin_dashboard.png")
+    page.get_by_role("link", name="View Details").first.click()
+    page.screenshot(path="jules-scratch/verification/ticket_details_page.png")
     browser.close()
 
 with sync_playwright() as playwright:

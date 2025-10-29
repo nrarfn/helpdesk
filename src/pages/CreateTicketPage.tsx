@@ -26,6 +26,7 @@ const CreateTicketPage = () => {
   const { user } = useSession();
   const navigate = useNavigate();
   const [applications, setApplications] = useState<any[]>([]);
+  const [defaultStatusId, setDefaultStatusId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nama_penanya: "",
     asal_instansi: "",
@@ -35,16 +36,29 @@ const CreateTicketPage = () => {
   });
 
   useEffect(() => {
-    const fetchApplications = async () => {
-      const { data, error } = await supabase.from("applications").select("*");
-      if (error) {
-        console.error("Error fetching applications:", error);
+    const fetchInitialData = async () => {
+      const { data: appData, error: appError } = await supabase
+        .from("applications")
+        .select("*");
+      if (appError) {
+        console.error("Error fetching applications:", appError);
       } else {
-        setApplications(data);
+        setApplications(appData);
+      }
+
+      const { data: statusData, error: statusError } = await supabase
+        .from("statuses")
+        .select("id")
+        .eq("nama_status", "Open")
+        .single();
+      if (statusError) {
+        console.error("Error fetching default status:", statusError);
+      } else {
+        setDefaultStatusId(statusData.id);
       }
     };
 
-    fetchApplications();
+    fetchInitialData();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -58,24 +72,11 @@ const CreateTicketPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      const { data: latestTicket } = await supabase
-        .from("tickets")
-        .select("kode_tiket")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-
-      const newTicketNumber = latestTicket
-        ? parseInt(latestTicket.kode_tiket.slice(2)) + 1
-        : 1;
-      const newTicketId = `HD${newTicketNumber.toString().padStart(4, "0")}`;
-
       const { error } = await supabase.from("tickets").insert([
         {
           ...formData,
           created_by: user.id,
-          kode_tiket: newTicketId,
-          status_id: "a7e4b9f0-8c7c-4a3e-9b0f-2b0b7e4c6b8c", // default to 'Open' status
+          status_id: defaultStatusId,
         },
       ]);
 

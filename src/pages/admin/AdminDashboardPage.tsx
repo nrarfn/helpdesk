@@ -26,47 +26,73 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListFilter, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import supabase from "@/supabase";
 
 const AdminDashboardPage = () => {
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<any[]>([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      const { data, error } = await supabase
+        .from("tickets")
+        .select("*, statuses(*), applications(*), profiles(*)");
+      if (error) {
+        console.error("Error fetching tickets:", error);
+      } else {
+        setTickets(data);
+        setFilteredTickets(data);
+      }
+    };
+
+    fetchTickets();
+  }, []);
+
+  useEffect(() => {
+    let filtered = tickets;
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(
+        (ticket) => ticket.statuses.nama_status.toLowerCase() === statusFilter
+      );
+    }
+
+    if (searchQuery) {
+      filtered = filtered.filter((ticket) =>
+        ticket.kode_tiket.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredTickets(filtered);
+  }, [statusFilter, searchQuery, tickets]);
+
   return (
-    <Tabs defaultValue="all">
+    <Tabs defaultValue="all" onValueChange={setStatusFilter}>
       <div className="flex items-center">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="open">Open</TabsTrigger>
-          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="in progress">In Progress</TabsTrigger>
           <TabsTrigger value="closed">Closed</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1">
-                <ListFilter className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Filter
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>
-                Application
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Status</DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search tickets..."
               className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
       </div>
-      <TabsContent value="all">
+      <TabsContent value={statusFilter}>
         <Card>
           <CardHeader>
             <CardTitle>All Tickets</CardTitle>
@@ -87,19 +113,30 @@ const AdminDashboardPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* TODO: Add logic to fetch and display all tickets */}
-                <TableRow>
-                  <TableCell>HD0001</TableCell>
-                  <TableCell>John Doe</TableCell>
-                  <TableCell>Application 1</TableCell>
-                  <TableCell>
-                    <Badge>Open</Badge>
-                  </TableCell>
-                  <TableCell>2024-01-01</TableCell>
-                  <TableCell>
-                    <Button size="sm">View Details</Button>
-                  </TableCell>
-                </TableRow>
+                {filteredTickets.map((ticket) => (
+                  <TableRow key={ticket.id}>
+                    <TableCell>{ticket.kode_tiket}</TableCell>
+                    <TableCell>{ticket.nama_penanya}</TableCell>
+                    <TableCell>{ticket.applications.nama_aplikasi}</TableCell>
+                    <TableCell>
+                      <Badge
+                        style={{ backgroundColor: ticket.statuses.warna }}
+                      >
+                        {ticket.statuses.nama_status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(ticket.updated_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" asChild>
+                        <Link to={`/admin/tickets/${ticket.id}`}>
+                          View Details
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>
