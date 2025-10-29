@@ -1,4 +1,4 @@
-import NotFoundPage from "../pages/404Page";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
 import {
   SidebarInset,
@@ -6,7 +6,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { Outlet } from "react-router-dom";
 import { Separator } from "@radix-ui/react-separator";
 import {
   Breadcrumb,
@@ -18,10 +17,12 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const AuthProtectedRoute = () => {
-  const { session } = useSession();
+  const { session, user } = useSession();
+  
   if (!session) {
-    return <NotFoundPage />;
+    return <Navigate to="/auth" replace />;
   }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -32,13 +33,15 @@ const AuthProtectedRoute = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
+                <BreadcrumbLink href="/dashboard">
+                  Helpdesk DLH Jakarta
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {user?.role === "admin" ? "Administrator" : "User Dashboard"}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

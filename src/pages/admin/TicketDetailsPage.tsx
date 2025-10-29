@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import supabase from "@/supabase";
+import { supabase } from "@/supabase";
 import { toast } from "sonner";
 
 const TicketDetailsPage = () => {

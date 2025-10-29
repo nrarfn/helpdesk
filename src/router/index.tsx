@@ -1,29 +1,32 @@
 import { createBrowserRouter } from "react-router-dom";
-import HomePage from "../pages/HomePage.tsx";
 import UserDashboardPage from "../pages/UserDashboardPage.tsx";
 import CreateTicketPage from "../pages/CreateTicketPage.tsx";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage.tsx";
+import AdminTicketsPage from "../pages/admin/AdminTicketsPage.tsx";
 import ApplicationsPage from "../pages/admin/ApplicationsPage.tsx";
 import StatusesPage from "../pages/admin/StatusesPage.tsx";
+import UsersPage from "../pages/admin/UsersPage.tsx";
+import RolesPage from "../pages/admin/RolesPage.tsx";
 import TicketDetailsPage from "../pages/admin/TicketDetailsPage.tsx";
 import NotFoundPage from "../pages/404Page.tsx";
 import AuthProtectedRoute from "./AuthProtectedRoute.tsx";
 import AdminProtectedRoute from "./AdminProtectedRoute.tsx";
 import AdminLayout from "../components/layout/AdminLayout.tsx";
+import RootRedirect from "../components/RootRedirect.tsx";
 import Providers from "../Providers.tsx";
 import { AuthPage } from "@/pages/AuthPage.tsx";
 
 const router = createBrowserRouter([
-  // I recommend you reflect the routes here in the pages folder
   {
     path: "/",
     element: <Providers />,
     children: [
-      // Public routes
+      // Root redirect berdasarkan status login
       {
         path: "/",
-        element: <HomePage />,
+        element: <RootRedirect />,
       },
+      // Public route untuk auth
       {
         path: "/auth",
         element: <AuthPage />,
@@ -38,7 +41,7 @@ const router = createBrowserRouter([
             element: <UserDashboardPage />,
           },
           {
-            path: "/create-ticket",
+            path: "/tickets/create",
             element: <CreateTicketPage />,
           },
           {
@@ -50,6 +53,14 @@ const router = createBrowserRouter([
                 element: <AdminLayout />,
                 children: [
                   {
+                    path: "dashboard",
+                    element: <AdminDashboardPage />,
+                  },
+                  {
+                    path: "tickets",
+                    element: <AdminTicketsPage />,
+                  },
+                  {
                     path: "",
                     element: <AdminDashboardPage />,
                   },
@@ -60,6 +71,14 @@ const router = createBrowserRouter([
                   {
                     path: "statuses",
                     element: <StatusesPage />,
+                  },
+                  {
+                    path: "users",
+                    element: <UsersPage />,
+                  },
+                  {
+                    path: "roles",
+                    element: <RolesPage />,
                   },
                   {
                     path: "tickets/:id",

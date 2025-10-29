@@ -36,7 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import supabase from "@/supabase";
+import { supabase } from "@/supabase";
 import { toast } from "sonner";
 
 const ApplicationsPage = () => {

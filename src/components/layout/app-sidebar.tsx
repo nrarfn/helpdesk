@@ -1,23 +1,17 @@
 import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
+  TicketIcon,
   LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
+  PlusCircleIcon,
   SettingsIcon,
+  ShieldCheckIcon,
+  FolderIcon,
+  TagIcon,
   UsersIcon,
+  UserCheckIcon,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
-import { NavDocuments } from "@/components/layout/nav-documents";
-import { NavMain } from "@/components/layout/nav-main";
+import { NavGroup } from "@/components/layout/nav-group";
 import { NavSecondary } from "@/components/layout/nav-secondary";
 import { NavUser } from "@/components/layout/nav-user";
 import {
@@ -29,149 +23,110 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useSession } from "@/context/SessionContext";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
+export function AppSidebar() {
+  const { user } = useSession();
+
+  // Menu utama untuk semua user
+  const menuUtama = [
     {
       title: "Dashboard",
-      url: "#",
+      url: user?.role === "admin" ? "/admin/dashboard" : "/dashboard",
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
+      title: "Tiket",
+      url: user?.role === "admin" ? "/admin/tickets" : "/dashboard",
+      icon: TicketIcon,
     },
+  ];
+
+  // Menu khusus user biasa
+  const userMenuUtama = [
+    ...menuUtama,
     {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
+      title: "Buat Tiket",
+      url: "/tickets/create", 
+      icon: PlusCircleIcon,
     },
+  ];
+
+  // Menu administrasi khusus admin
+  const menuAdministrasi = [
     {
-      title: "Projects",
-      url: "#",
+      title: "Aplikasi",
+      url: "/admin/applications",
       icon: FolderIcon,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Status",
+      url: "/admin/statuses",
+      icon: TagIcon,
+    },
+    {
+      title: "Users",
+      url: "/admin/users",
       icon: UsersIcon,
     },
-  ],
-  navClouds: [
     {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Roles",
+      url: "/admin/roles",
+      icon: UserCheckIcon,
     },
+  ];
+
+  const navSecondary = [
     {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
+      title: "Pengaturan",
+      url: "/settings",
       icon: SettingsIcon,
     },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: SearchIcon,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
-};
+  ];
 
-export function AppSidebar() {
+  const userData = {
+    name: user?.email?.split('@')[0] || "User",
+    email: user?.email || "user@example.com",
+    avatar: "/avatars/user.jpg",
+    role: user?.role || "user",
+  };
+
   return (
     <Sidebar collapsible="offcanvas" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5 "
-            >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+            <SidebarMenuButton size="lg" asChild>
+              <Link to={user?.role === "admin" ? "/admin/dashboard" : "/dashboard"}>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <ShieldCheckIcon className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Helpdesk DLH</span>
+                  <span className="truncate text-xs">
+                    Dinas Lingkungan Hidup DKI Jakarta
+                  </span>
+                </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavGroup 
+          title="Menu Utama" 
+          items={user?.role === "admin" ? menuUtama : userMenuUtama} 
+        />
+        {user?.role === "admin" && (
+          <NavGroup 
+            title="Administrasi" 
+            items={menuAdministrasi} 
+          />
+        )}
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

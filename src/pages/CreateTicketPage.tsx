@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
-import supabase from "@/supabase";
+import { supabase } from "@/supabase";
 import { useSession } from "@/context/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
